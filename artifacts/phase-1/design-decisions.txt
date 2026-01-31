@@ -1,0 +1,16 @@
+Design Decisions – Phase 1
+
+1. Used FAISS instead of managed vector DB
+   Reason: full control, offline support, no cost, easier debugging.
+
+2. Enforced absolute imports (backend.*)
+   Reason: prevents deployment-time import failures.
+
+3. Chose metadata-based versioning
+   Reason: simpler rollback, better auditability, scalable to many versions.
+
+4. No frontend in Phase 1
+   Reason: backend correctness > UI polish at early stage.
+
+5. Refusal on empty context
+   Reason: avoids hallucinations and legal risk in enterprise systems.
