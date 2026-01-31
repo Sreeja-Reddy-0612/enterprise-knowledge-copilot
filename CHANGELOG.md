@@ -1,6 +1,22 @@
 # Changelog
 
-## v0.1.0
+## v0.2.0 – Phase 2 Completed
+### Added
+- Versioned document ingestion pipeline
+- Persistent FAISS vector index per knowledge version
+- Semantic chunk retrieval using SentenceTransformers
+- Active version enforcement during query execution
+- Retrieval debugging (distances, indices, chunk inspection)
+- Support for multiple document types under same version
+
+### Fixed
+- Empty retrieval issues due to version mismatch
+- FAISS index reload inconsistencies
+- Incorrect query execution on inactive versions
+
+---
+
+## v0.1.0 – Phase 1 Completed
 ### Added
 - Core RAG pipeline
 - Document ingestion with version tagging

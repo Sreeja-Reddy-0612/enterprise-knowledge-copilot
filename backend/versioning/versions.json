@@ -1,0 +1,11 @@
+{
+  "active_version": "v1.0.0",
+  "versions": {
+    "string": {
+      "status": "DEPRECATED"
+    },
+    "v1.0.0": {
+      "status": "ACTIVE"
+    }
+  }
+}

@@ -8,13 +8,19 @@ router = APIRouter()
 
 @router.post("/query", response_model=AnswerOutput)
 def query(input: QueryInput):
-    contexts = retrieve_context(input.question, input.knowledge_version)
-    answer = generate_answer(input.question, contexts)
+    contexts = retrieve_context(
+        input.question,
+        input.knowledge_version
+    )
 
-    sources = list(set([c["source"] for c in contexts]))
+    print("RETRIEVED CONTEXTS:")
+    for i, c in enumerate(contexts):
+        print(f"[{i}]", c[:200])
+
+    result = generate_answer(input.question, contexts)
 
     return AnswerOutput(
-        answer=answer,
-        sources=sources,
+        answer=result["answer"],
+        sources=result["sources"],
         knowledge_version=input.knowledge_version
     )

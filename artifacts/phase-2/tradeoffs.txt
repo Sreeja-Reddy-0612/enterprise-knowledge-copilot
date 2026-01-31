@@ -1,0 +1,52 @@
+
+---
+
+## 📄 `tradeoffs.txt`
+
+```txt
+Phase 2 – Design Tradeoffs
+
+1. FAISS vs Managed Vector DB
+--------------------------------
+Chosen: FAISS (local)
+
+Pros:
+- Full control
+- No vendor lock-in
+- Easy debugging
+- Suitable for local + enterprise deployments
+
+Cons:
+- Manual scaling
+- No built-in replication
+
+2. Versioned Index vs Single Index
+--------------------------------
+Chosen: Versioned Index
+
+Pros:
+- Strong isolation
+- Safe rollbacks
+- Cleaner deployments
+
+Cons:
+- More storage usage
+
+3. Chunk-Based Retrieval
+-----------------------
+Pros:
+- Better semantic precision
+- Reduced hallucination
+
+Cons:
+- Requires careful chunk sizing
+
+4. No Cross-Encoder (Phase 2)
+----------------------------
+Reason:
+- Keep retrieval transparent
+- Easier debugging
+
+Planned:
+- Cross-encoder reranking in Phase 3
+
