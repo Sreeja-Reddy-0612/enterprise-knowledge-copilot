@@ -1,0 +1,20 @@
+Phase 3 – Known Failure Cases & Safeguards
+
+1. Query on non-existent version
+   - Behavior: Version ignored
+   - Result: Query falls back to active versions
+
+2. Rollback to unknown version
+   - Behavior: Error raised
+   - Safeguard: Version existence validation
+
+3. Missing FAISS index file
+   - Behavior: Logged warning
+   - System continues without crash
+
+4. Empty retrieval result
+   - Behavior: Safe refusal response returned
+
+5. Concurrent ingest and query
+   - Behavior: Eventual consistency
+   - Acceptable for current phase

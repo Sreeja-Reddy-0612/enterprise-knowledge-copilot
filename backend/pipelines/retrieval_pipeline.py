@@ -1,21 +1,49 @@
+from pathlib import Path
 from backend.vectorstore.faiss_store import FAISSVectorStore
-from backend.config import VECTORSTORE_DIR, EMBEDDING_MODEL
-from backend.versioning.version_manager import VersionManager
+from backend.versioning.version_manager import get_active_versions
+from backend.config import EMBEDDING_MODEL, VECTORSTORE_DIR
+from backend.utils.logger import get_logger
 
-def retrieve_context(question, knowledge_version, top_k=5):
-    store_path = VECTORSTORE_DIR / f"{knowledge_version}.index"
 
-    print("📂 STORE PATH:", store_path)
-    print("📦 EXISTS:", store_path.exists())
+def retrieve_context(
+    question: str,
+    top_k: int = 5,
+    override_versions=None,
+    trace_id: str | None = None
+):
+    logger = get_logger("retrieval", trace_id)
 
-    store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path))
+    logger.info("Retrieval started")
+    logger.info(f"Question = {question}")
 
-    results = store.search(question, top_k)
+    versions = override_versions or get_active_versions()
+    logger.info(f"Versions in scope = {versions}")
 
-    print("🧠 TOTAL RETRIEVED:", len(results))
-    for i, r in enumerate(results):
-        print(f"---- CHUNK {i} ----")
-        print(r[:300])
-        print("------------------")
+    results = []
+
+    for version in versions:
+        store_path = Path(VECTORSTORE_DIR) / f"{version}.index"
+
+        if not store_path.exists():
+            logger.warning(f"Vectorstore missing for version={version}")
+            continue
+
+        logger.info(f"Loading vectorstore {store_path}")
+        store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path))
+
+        retrieved = store.search_with_scores(question, top_k)
+        logger.info(
+            f"Retrieved {len(retrieved)} chunks from version={version}"
+        )
+
+        for chunk, score in retrieved:
+            results.append({
+                "text": chunk,
+                "score": score,
+                "version": version
+            })
+
+    results.sort(key=lambda x: x["score"])
+    logger.info(f"Total chunks retrieved = {len(results)}")
 
     return results

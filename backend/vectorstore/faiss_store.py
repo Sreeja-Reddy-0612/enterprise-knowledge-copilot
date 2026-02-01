@@ -74,3 +74,19 @@ class FAISSVectorStore:
                 results.append(self.metadata[i]["text"])
 
         return results
+
+    def search_with_scores(self, query, top_k=5):
+        if self.index is None:
+            return []
+
+        q_emb = self.model.encode([query])
+        distances, indices = self.index.search(q_emb, top_k)
+
+        results = []
+        for i, idx in enumerate(indices[0]):
+            if idx < len(self.metadata):
+                results.append(
+                    (self.metadata[idx]["text"], float(distances[0][i]))
+                )
+
+        return results

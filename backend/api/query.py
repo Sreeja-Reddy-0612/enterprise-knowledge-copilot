@@ -1,26 +1,37 @@
 from fastapi import APIRouter
-from backend.models.query import QueryInput
-from backend.models.answer import AnswerOutput
+import uuid
+
 from backend.pipelines.retrieval_pipeline import retrieve_context
 from backend.pipelines.generation_pipeline import generate_answer
+from backend.utils.logger import get_logger
 
 router = APIRouter()
 
-@router.post("/query", response_model=AnswerOutput)
-def query(input: QueryInput):
-    contexts = retrieve_context(
-        input.question,
-        input.knowledge_version
+
+@router.post("/query")
+def query(payload: dict):
+    trace_id = payload.get("trace_id") or str(uuid.uuid4())
+    logger = get_logger("query_api", trace_id)
+
+    question = payload["question"]
+    override_versions = payload.get("versions")
+
+    logger.info("Query received")
+    logger.info(f"Override versions = {override_versions}")
+
+    retrieved = retrieve_context(
+        question=question,
+        override_versions=override_versions,
+        trace_id=trace_id
     )
 
-    print("RETRIEVED CONTEXTS:")
-    for i, c in enumerate(contexts):
-        print(f"[{i}]", c[:200])
+    response = generate_answer(question, retrieved)
 
-    result = generate_answer(input.question, contexts)
+    used_versions = list(set(r["version"] for r in retrieved))
+    logger.info(f"Answer sourced from versions = {used_versions}")
 
-    return AnswerOutput(
-        answer=result["answer"],
-        sources=result["sources"],
-        knowledge_version=input.knowledge_version
-    )
+    return {
+        **response,
+        "knowledge_version": used_versions,
+        "trace_id": trace_id
+    }

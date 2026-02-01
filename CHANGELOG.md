@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.3.0 – Phase 3 Completed
+### Added
+- Multi-version knowledge lifecycle (DRAFT / ACTIVE / DEPRECATED)
+- Runtime version rollback API
+- Query-time version override support
+- Multi-version retrieval with global ranking
+- End-to-end observability with trace_id
+- Structured logging across ingestion, retrieval, query, and rollback
+- Audit logs for version transitions
+
+### Fixed
+- Silent version override failures
+- Retrieval leakage across inactive versions
+- Missing trace propagation across pipelines
+
+---
+
 ## v0.2.0 – Phase 2 Completed
 ### Added
 - Versioned document ingestion pipeline

@@ -1,35 +1,21 @@
-def generate_answer(question: str, contexts: list[str]):
-    if not contexts:
+CONFIDENCE_THRESHOLD = 1.2   # FAISS L2 distance
+
+def generate_answer(question: str, retrieved_chunks: list):
+    if not retrieved_chunks:
         return {
-            "answer": "No relevant information found.",
+            "answer": "I could not find relevant information in the knowledge base.",
             "sources": []
         }
 
-    q = question.lower()
+    best = retrieved_chunks[0]
 
-    # 🔹 Definition-style questions
-    if any(k in q for k in ["what is", "define", "explain"]):
-        # Return the most relevant chunk directly
+    if best["score"] > CONFIDENCE_THRESHOLD:
         return {
-            "answer": contexts[0].strip(),
-            "sources": ["vectorstore"]
+            "answer": "The available information is not confident enough to answer this question.",
+            "sources": []
         }
 
-    # 🔹 Resume / factual extraction
-    if "name" in q:
-        return {
-            "answer": contexts[0].split("\n")[0],
-            "sources": ["vectorstore"]
-        }
-
-    if "skill" in q:
-        return {
-            "answer": contexts[0],
-            "sources": ["vectorstore"]
-        }
-
-    # 🔹 Default fallback
     return {
-        "answer": contexts[0],
-        "sources": ["vectorstore"]
+        "answer": best["text"].strip(),
+        "sources": [best["version"]]
     }
