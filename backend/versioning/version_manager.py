@@ -73,7 +73,22 @@ def get_active_versions():
     return version_manager.get_active_versions()
 
 def get_active_version():
-    return version_manager.get_active_version()
+    data = version_manager._load()
+
+    active = data.get("active_version")
+
+    if not active:
+        raise RuntimeError(
+            "No active knowledge version found. "
+            "Initialize a version before querying."
+        )
+
+    if active not in data.get("versions", {}):
+        raise RuntimeError(
+            f"Active version '{active}' not found in versions registry."
+        )
+
+    return active
 
 def rollback_version(version: str):
     version_manager.rollback_to(version)

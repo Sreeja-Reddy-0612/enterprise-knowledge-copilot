@@ -1,29 +1,20 @@
-CONFIDENCE_THRESHOLD = 1.2   # FAISS L2 distance
+from backend.utils.logger import get_logger
 
 
-def generate_answer(question, retrieved_chunks, trace_id=None):
-    """
-    Generates grounded answer from retrieved chunks
-    """
-
-    answer_text = ""
+def generate_answer(question: str, retrieved_chunks: list, trace_id: str):
+    logger = get_logger("generation", trace_id)
 
     if not retrieved_chunks:
         return {
             "answer": "No relevant information found.",
             "sources": [],
-            "trace_id": trace_id
         }
 
-    # Simple grounded answer (you can improve later)
-    answer_text = "\n".join(
-        chunk["text"] for chunk in retrieved_chunks[:5]
-    )
+    context = "\n".join([c["text"] for c in retrieved_chunks])
 
-    sources = list(set(chunk["version"] for chunk in retrieved_chunks))
+    answer = f"Based on the documents:\n\n{context[:2000]}"
 
     return {
-        "answer": answer_text,
-        "sources": sources,
-        "trace_id": trace_id
+        "answer": answer,
+        "sources": retrieved_chunks,
     }

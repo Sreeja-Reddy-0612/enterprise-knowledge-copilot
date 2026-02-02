@@ -1,7 +1,7 @@
 from pathlib import Path
 from backend.vectorstore.faiss_store import FAISSVectorStore
-from backend.versioning.version_manager import get_active_versions
-from backend.config import EMBEDDING_MODEL, VECTORSTORE_DIR
+from backend.versioning.version_manager import get_active_version
+from backend.config import VECTORSTORE_DIR, EMBEDDING_MODEL
 from backend.utils.logger import get_logger
 
 
@@ -9,51 +9,41 @@ def retrieve_context(
     question: str,
     top_k: int = 5,
     override_versions=None,
-    trace_id: str | None = None
+    trace_id: str | None = None,
 ):
     logger = get_logger("retrieval", trace_id)
     logger.info("Retrieval started")
     logger.info(f"Question = {question}")
 
-    versions = override_versions or get_active_versions()
-    logger.info(f"Versions in scope = {versions}")
+    if override_versions:
+        versions = override_versions
+    else:
+        active = get_active_version()
+        if not active:
+            raise RuntimeError("No active knowledge version")
+        versions = [active]
 
     results = []
 
     for version in versions:
         store_path = Path(VECTORSTORE_DIR) / f"{version}.index"
-
         if not store_path.exists():
-            logger.warning(f"Vectorstore missing for version={version}")
             continue
 
-        logger.info(f"Loading vectorstore {store_path}")
+        store = FAISSVectorStore(
+            embedding_model=EMBEDDING_MODEL,
+            index_path=str(store_path),
+        )
 
-        # Propagate trace_id into the vector store instance so it can
-        # include the trace in its internal logs/metrics.
-        try:
-            store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path), trace_id=trace_id)
-        except TypeError:
-            # Backwards compatibility: older FAISSVectorStore may not accept trace_id
-            store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path))
-
-        # Propagate trace_id into the search call as well.
-        try:
-            retrieved = store.search_with_scores(question, top_k, trace_id=trace_id)
-        except TypeError:
-            retrieved = store.search_with_scores(question, top_k)
-
-        logger.info(f"Retrieved {len(retrieved)} chunks from version={version}")
+        retrieved = store.search_with_scores(question, top_k)
 
         for chunk, score in retrieved:
             results.append({
                 "text": chunk,
                 "score": score,
                 "version": version,
-                "trace_id": trace_id
+                "trace_id": trace_id,
             })
 
     results.sort(key=lambda x: x["score"])
-    logger.info(f"Total chunks retrieved = {len(results)}")
-
     return results

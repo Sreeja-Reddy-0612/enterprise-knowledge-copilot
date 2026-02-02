@@ -1,24 +1,24 @@
 import { useState } from "react";
-import { rollbackVersion } from "../api/queryApi";
+import { rollbackVersion, getActiveVersion } from "../api/queryApi";
 
-export default function RollbackBox({ onDone }) {
+export default function RollbackBox({ setActiveVersion }) {
   const [version, setVersion] = useState("");
 
-  async function handleRollback() {
+  const rollback = async () => {
+    if (!version) return;
     await rollbackVersion(version);
-    alert("Rollback completed");
-    onDone();
-  }
+    const active = await getActiveVersion();
+    setActiveVersion(active);
+  };
 
   return (
-    <div>
-      <h3>⏪ Rollback Version</h3>
+    <>
       <input
         placeholder="Version to rollback"
         value={version}
         onChange={e => setVersion(e.target.value)}
       />
-      <button onClick={handleRollback}>Rollback</button>
-    </div>
+      <button onClick={rollback}>Rollback</button>
+    </>
   );
 }

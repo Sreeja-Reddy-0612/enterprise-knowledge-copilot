@@ -13,7 +13,7 @@
 
 ### Improved
 - End-to-end usability from ingestion → query → rollback
-- Debugging via trace_id visibility in UI
+- Debugging and observability via trace_id visibility in UI
 
 ---
 
