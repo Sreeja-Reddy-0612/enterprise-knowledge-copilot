@@ -1,5 +1,5 @@
 {
-  "active_version": "sree",
+  "active_version": "name",
   "versions": {
     "string": {
       "status": "DEPRECATED"
@@ -29,6 +29,15 @@
       "status": "DEPRECATED"
     },
     "sree": {
+      "status": "DEPRECATED"
+    },
+    "coco": {
+      "status": "DEPRECATED"
+    },
+    "machine": {
+      "status": "DEPRECATED"
+    },
+    "name": {
       "status": "ACTIVE"
     }
   }

@@ -12,7 +12,6 @@ def retrieve_context(
     trace_id: str | None = None
 ):
     logger = get_logger("retrieval", trace_id)
-
     logger.info("Retrieval started")
     logger.info(f"Question = {question}")
 
@@ -29,18 +28,29 @@ def retrieve_context(
             continue
 
         logger.info(f"Loading vectorstore {store_path}")
-        store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path))
 
-        retrieved = store.search_with_scores(question, top_k)
-        logger.info(
-            f"Retrieved {len(retrieved)} chunks from version={version}"
-        )
+        # Propagate trace_id into the vector store instance so it can
+        # include the trace in its internal logs/metrics.
+        try:
+            store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path), trace_id=trace_id)
+        except TypeError:
+            # Backwards compatibility: older FAISSVectorStore may not accept trace_id
+            store = FAISSVectorStore(EMBEDDING_MODEL, str(store_path))
+
+        # Propagate trace_id into the search call as well.
+        try:
+            retrieved = store.search_with_scores(question, top_k, trace_id=trace_id)
+        except TypeError:
+            retrieved = store.search_with_scores(question, top_k)
+
+        logger.info(f"Retrieved {len(retrieved)} chunks from version={version}")
 
         for chunk, score in retrieved:
             results.append({
                 "text": chunk,
                 "score": score,
-                "version": version
+                "version": version,
+                "trace_id": trace_id
             })
 
     results.sort(key=lambda x: x["score"])

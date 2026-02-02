@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.4.0 – Phase 4 Completed
+### Added
+- Frontend application (Vite + React)
+- Knowledge upload UI with version tagging
+- Active knowledge version display
+- Rollback control from UI
+- Query interface with navigation flow
+- Display of answer, trace_id, and knowledge versions
+- Frontend–backend API orchestration
+- CORS-safe integration
+
+### Improved
+- End-to-end usability from ingestion → query → rollback
+- Debugging via trace_id visibility in UI
+
+---
+
 ## v0.3.0 – Phase 3 Completed
 ### Added
 - Multi-version knowledge lifecycle (DRAFT / ACTIVE / DEPRECATED)
@@ -25,11 +42,6 @@
 - Active version enforcement during query execution
 - Retrieval debugging (distances, indices, chunk inspection)
 - Support for multiple document types under same version
-
-### Fixed
-- Empty retrieval issues due to version mismatch
-- FAISS index reload inconsistencies
-- Incorrect query execution on inactive versions
 
 ---
 
