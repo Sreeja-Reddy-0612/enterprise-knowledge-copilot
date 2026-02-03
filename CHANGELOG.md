@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.4.1 – Phase 5.2 (Development)
+### Added
+- Runtime configuration validation at application startup
+- Centralized typed settings management
+- Explicit environment sanity checks (paths, models, version files)
+- Startup logging for operational visibility
+
+### Improved
+- Application startup reliability
+- Failure transparency for misconfiguration
+- Production readiness and maintainability
+- Safety against invalid runtime state
+
+---
+
 ## v0.4.0 – Phase 4 Completed
 ### Added
 - Frontend application (Vite + React)
